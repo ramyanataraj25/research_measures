@@ -2,13 +2,13 @@
 
 # read the subject file in and parse through removing "ɚɹ" the ɹ is it follows
 # ɚ	or 3
-def edit_pronunciations(ntr_task_file):
+def edit_pronunciations(subject_file):
     word = "" # can ingore these variables was trying to remove the error line
     return word
 
 # take file created from previous file (so subject_file) and apply conversion 
 # code to convert IPA to toolkit conventions (from Caleb)
-
+    
 def create_new_subject_file(ntr_task_file, subject_file):
     file = subject_file # this is wrong assignment just removing the error line
     
@@ -24,4 +24,3 @@ def create_new_subject_file(ntr_task_file, subject_file):
     # and words
     
     return file
-    
