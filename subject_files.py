@@ -1,10 +1,23 @@
-# import libraries that are necessary to write code
+import subjects_measures
 
-# read the subject file in and parse through removing "ɚɹ" the ɹ is it follows
-# ɚ	or 3
-def edit_pronunciations(subject_file):
-    word = "" # can ingore these variables was trying to remove the error line
-    return word
+def create_new_subject_file(ntr_task_file, subject_file):
+    
+    # open the ntr_task_file file using a with statement
+    with open(ntr_task_file, 'r', encoding='utf-8') as f:
+        
+    # open subject_file file with a with statement to write to it
+        with open(subject_file, 'w', encoding='utf-8') as sub_f:
+            for sub_row in sub_f:
 
-# take file created from previous file (so subject_file) and apply conversion 
-# code to convert IPA to toolkit conventions (from Caleb)
+    # create a list that can store all the subject pronunciations
+                for row in f:
+                    # fix concatenations and edit the pronunciations
+                    new_pronunciations = subjects_measures.edit_pronunciations(
+                        row[16])
+                    words_dict = {row[0], row[1], new_pronunciations}
+    
+    # write to the second file to contain all concatenated pronunciations
+     # and words
+                    sub_row.write(words_dict)
+    
+    return subject_file
