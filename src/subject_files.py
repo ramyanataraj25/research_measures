@@ -100,9 +100,9 @@ def process_subjects_to_csv(subject_file, output_csv):
         return None
     
 
-    '''
-      pipeline: iterate through all subject files, 
-      chain through data cleaning functions, 
-      pass into process_subjects_to_csv function, 
-      and specify the output csv path
-    '''
+'''
+    pipeline: iterate through all subject files, 
+    chain through data cleaning functions, 
+    pass into process_subjects_to_csv function, 
+    and specify the output csv path
+'''
