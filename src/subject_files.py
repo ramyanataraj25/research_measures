@@ -36,13 +36,6 @@ def create_new_subject_file(ntr_task_file, subject_file):
 
 #args: path to subject file, path to output csv file
 def process_subjects_to_csv(subject_file, output_csv):
-    """
-        retrieve the paradigm order, pseudoword, and concatenated word from the ramya csv file
-        iterate thorugh every pseudoword in csv file and call the R script to generate 
-        the measures
-        add these measures in the csv file 
-        return the csv file 
-    """
 
     try:
         # Read input CSV file
