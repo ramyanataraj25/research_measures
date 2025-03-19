@@ -2,15 +2,7 @@
 import csv
 import subprocess 
 import pandas as pd
-
-# read the subject file in and parse through removing "ɚɹ" the ɹ is it follows
-# ɚ	or 3
-def edit_pronunciations(subject_file):
-    word = "" # can ingore these variables was trying to remove the error line
-    return word
-
-# take file created from previous file (so subject_file) and apply conversion 
-# code to convert IPA to toolkit conventions (from Caleb)
+import subjects_measures
     
 def create_new_subject_file(ntr_task_file, subject_file):
     
@@ -25,7 +17,7 @@ def create_new_subject_file(ntr_task_file, subject_file):
                 for row in f:
                     # fix concatenations and edit the pronunciations
                     new_pronunciations = subjects_measures.edit_pronunciations(
-                        row[16])
+                        ntr_task_file, 16)
                     words_dict = {row[0], row[1], new_pronunciations}
     
     # write to the second file to contain all concatenated pronunciations
