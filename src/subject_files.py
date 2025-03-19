@@ -1,5 +1,5 @@
 # import libraries that are necessary to write code
-import csv
+import argparse
 import subprocess 
 import pandas as pd
 import subjects_measures
@@ -83,7 +83,24 @@ def process_subjects_to_csv(subject_file, output_csv):
     except Exception as e:
         print(f"Error in process_subjects_to_csv: {e}")
         return None
+
+def main():
+    parser = argparse.ArgumentParser(
+      description="Process a CSV file and create the measures for the subject.")
+    parser.add_argument("input_file", help="Path to the input CSV file")
+    parser.add_argument("output_file", help="Path to the output CSV file")
+    parser.add_argument("final_csv", help="Path to the final output df")
+
+    args = parser.parse_args()
     
+    # generates subject file
+    new_subject_file = create_new_subject_file(args.input_file, args.output_file)
+    
+    # additional information added and full df is created
+    process_subjects_to_csv(new_subject_file, args.final_csv)
+
+if __name__ == "__main__":
+    main()
 
 '''
     pipeline: iterate through all subject files, 

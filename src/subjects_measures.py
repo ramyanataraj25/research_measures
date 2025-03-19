@@ -5,6 +5,7 @@ import csv
 # ɚ	or 3
 def edit_pronunciations(ntr_task_file, concatenations):
     fixed_pronunciations = ''
+    # reads in file and finds the specific row and fixes it
     with open(ntr_task_file, mode = 'r', encoding='utf-8') as in_file:
         reader = csv.reader(in_file)
         
@@ -13,8 +14,5 @@ def edit_pronunciations(ntr_task_file, concatenations):
                 fixed_pronunciations += ''.join(word.replace("ɚɹ","ɚ") 
                     for word in row[concatenations].split()) + "\n"
         
+    # returns the word that is fixed
     return fixed_pronunciations.strip()
-        
-
-# take file created from previous file (so subject_file) and apply conversion 
-# code to convert IPA to toolkit conventions (from Caleb)

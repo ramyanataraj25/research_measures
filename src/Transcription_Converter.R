@@ -1,3 +1,6 @@
+# take file created from previous file (so subject_file) and apply conversion 
+# code to convert IPA to toolkit conventions (from Caleb)
+
 library(openxlsx)
 library(tidyverse)
 
