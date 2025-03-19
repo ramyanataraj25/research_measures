@@ -24,7 +24,7 @@ def create_new_subject_file(ntr_task_file, subject_file):
      # and words
                     sub_row.write(words_dict)
     
-    return file
+    return subject_file
 
 #args: path to subject file, path to output csv file
 def process_subjects_to_csv(subject_file, output_csv):
