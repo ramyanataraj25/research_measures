@@ -18,11 +18,12 @@ def create_new_subject_file(ntr_task_file, subject_file):
                     # fix concatenations and edit the pronunciations
                     new_pronunciations = subjects_measures.edit_pronunciations(
                         ntr_task_file, 16)
-                    words_dict = {row[0], row[1], new_pronunciations}
+                    words_dict = {row.split()[0], row.split()[1], 
+                                  new_pronunciations}
     
     # write to the second file to contain all concatenated pronunciations
      # and words
-                    sub_row.write(words_dict)
+                    sub_f.write(str(words_dict) + '\n')
     
     return subject_file
 
@@ -102,12 +103,10 @@ def main():
 if __name__ == "__main__":
     main()
 
-''' ran code as: python3 /Users/ramyanataraj/Documents/Research/research_measures
-/src/subject_files.py "/Users/ramyanataraj/Documents/Research
-/research_measures/subject_test_files/Final 0057_task-pw_run-1.xlsx - 
- Hana.csv" "/Users/ramyanataraj/Documents/Research
-/research_measures/subject_test_files/Hana_generated.csv" "/Users/ramyanataraj/Documents/Research/research_measures
-/subject_test_files/final_Hana.csv" 
+''' ran code as: python3 /Users/ramyanataraj/Documents/Research/research_measures/src/subject_files.py "/Users/ramyanataraj/Documents/Research
+/research_measures/subject_test_files/Final 0057_task-pw_run-1.xlsx - Hana.csv" 
+"/Users/ramyanataraj/Documents/Research/research_measures/subject_test_files/Hana_generated.csv" 
+"/Users/ramyanataraj/Documents/Research/research_measures/subject_test_files/final_Hana.csv" 
 '''
 
 '''
