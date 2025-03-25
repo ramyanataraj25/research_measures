@@ -103,8 +103,9 @@ def main():
 if __name__ == "__main__":
     main()
 
-''' ran code as: python3 /Users/ramyanataraj/Documents/Research/research_measures/src/subject_files.py "/Users/ramyanataraj/Documents/Research
-/research_measures/subject_test_files/Final 0057_task-pw_run-1.xlsx - Hana.csv" 
+''' ran code as: 
+python3 /Users/ramyanataraj/Documents/Research/research_measures/src/subject_files.py 
+"/Users/ramyanataraj/Documents/Research/research_measures/subject_test_files/Final 0057_task-pw_run-1.xlsx - Hana.csv" 
 "/Users/ramyanataraj/Documents/Research/research_measures/subject_test_files/Hana_generated.csv" 
 "/Users/ramyanataraj/Documents/Research/research_measures/subject_test_files/final_Hana.csv" 
 '''
