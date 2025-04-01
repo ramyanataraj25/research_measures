@@ -14,19 +14,18 @@ def create_new_subject_file(ntr_task_file, subject_file):
             # for sub_row in sub_f:
 
     # create a list that can store all the subject pronunciations
-                for row in f:
-                    row = row.strip().split()
-                    if(len(row) < 2):
-                        continue
+            for row in f:
+                row = row.strip().split()
+                if(len(row) < 2):
+                    continue
                     # fix concatenations and edit the pronunciations
-                    new_pronunciations = subjects_measures.edit_pronunciations(
-                        ntr_task_file, 16)
-                    words_dict = {row[0], row[1], 
-                                  new_pronunciations}
+                new_pronunciations = subjects_measures.edit_pronunciations(
+                ntr_task_file, 16)
+                words_dict = {row[0], row[1], new_pronunciations}
     
     # write to the second file to contain all concatenated pronunciations
      # and words
-                    sub_f.write(str(words_dict) + '\n')
+                sub_f.write(str(words_dict) + '\n')
     
     return subject_file
 
