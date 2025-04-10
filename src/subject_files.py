@@ -5,16 +5,33 @@ import pandas as pd
 import subjects_measures
 import os
     
-def create_new_subject_file(input_file, output_file):
-    print(f"Attempting to open file: {input_file}")
-    try:
-        # Read the input file using pandas instead of direct file reading
-        df = pd.read_csv(input_file)
+def create_new_subject_file(ntr_task_file, subject_file):
+    try: 
+     # open the ntr_task_file file using a with statement
+        with open(ntr_task_file, 'r', encoding='utf-8') as f:
+    
+        # open subject_file file with a with statement to write to it
+            with open(subject_file, 'w', encoding='utf-8') as sub_f:
+                # for sub_row in sub_f:
+    
+                # create a list that can store all the subject pronunciations
+                i =0
+                for row in f:
+                    
+                    row = row.strip().split()
+                    if(len(row) < 2):
+                        continue
+                    # fix concatenations and edit the pronunciations
+                    new_pronunciations = subjects_measures.edit_pronunciations(
+                    ntr_task_file, 16)
+                    words_dict = {row[i], row[i+1], new_pronunciations}
+                    i = i + 1
         
-        # Write the processed data to the output file
-        df.to_csv(output_file, index=False)
-        return output_file
-        
+                    # write to the second file to contain all concatenated pronunciations
+                    # and words
+                    sub_f.write(str(words_dict) + '\n')
+                    print(subject_file)
+                    return subject_file
     except FileNotFoundError:
         print(f"Error: Could not find the file at path: {input_file}")
         print(f"Current working directory: {os.getcwd()}")
@@ -22,6 +39,9 @@ def create_new_subject_file(input_file, output_file):
     except Exception as e:
         print(f"Error while processing file: {str(e)}")
         raise
+ 
+     
+
 
 #args: path to subject file, path to output csv file
 def process_subjects_to_csv(subject_file, output_csv):
@@ -97,6 +117,7 @@ def main():
     
     args = parser.parse_args()
     
+    
     # Read the subjects CSV file
     subjects_df = pd.read_csv(args.subjects_csv)
     
@@ -118,10 +139,12 @@ def main():
         # Generate subject file
         new_subject_file = create_new_subject_file(input_file, subject_generated)
         
-        # Process subject data and create final output
-        process_subjects_to_csv(new_subject_file, final_output)
-        
         print(f"Completed processing for {subject_name}\n")
+        # Process subject data and create final output
+        temp = process_subjects_to_csv(new_subject_file, final_output)
+        print(new_subject_file)
+        
+        
 
 if __name__ == "__main__":
     main()
