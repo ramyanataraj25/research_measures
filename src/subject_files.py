@@ -66,14 +66,21 @@ def process_subjects_to_csv(input_file, output_csv):
         df = pd.read_csv(input_file)
         df.columns = df.columns.str.strip()
         
+        # Clean the Concatenate column using the same logic as edit_pronunciations
+        df['Concatenate'] = df['Concatenate'].apply(
+            lambda x: ''.join(word.replace("ɚɹ","ɚ") for word in str(x).split()) 
+            if not pd.isna(x) and x != 'noresp' 
+            else x
+        )
+        
         # Get all valid rows (where Concatenate isn't NA or 'noresp')
         valid_rows = df[~pd.isna(df['Concatenate']) & (df['Concatenate'] != 'noresp')]
         
-        # Create pronunciations.csv with pseudowords
+        # Create pronunciations.csv with pseudowords, drop duplicates if any
         pronunciations_df = pd.DataFrame({
             'X0': valid_rows['Pseudoword'],
             'toolkit_pron': valid_rows['Pseudoword']
-        })
+        }).drop_duplicates()
         pronunciations_df.to_csv('pronunciations.csv', index=False)
         
         # Run R script once for all pseudowords
@@ -82,23 +89,21 @@ def process_subjects_to_csv(input_file, output_csv):
         # Read all measures at once
         measures_df = pd.read_csv('pseudoword_measures.csv')
         
-        # Merge measures back into original dataframe
+        # Merge measures back into original dataframe, being careful with duplicates
         result_df = pd.merge(
             df,
             measures_df,
             left_on='Pseudoword',
             right_on='spelling',
             how='left'
-        )
+        ).drop_duplicates(subset=['Paradigm order', 'Pseudoword', 'Concatenate'])  # Keep unique rows based on these columns
         
-        # Reorder columns to ensure desired order
-        # Keep original columns first, then add measures
+        # Reorder columns
         columns_order = [
             'Paradigm order',
             'Pseudoword',
             'Concatenate'
         ]
-        # Add all the measure columns (excluding 'spelling' which we used for merging)
         measure_columns = [col for col in measures_df.columns if col != 'spelling']
         columns_order.extend(measure_columns)
         
@@ -119,33 +124,41 @@ def main():
     
     args = parser.parse_args()
     
+    # Get the root directory dynamically (where src folder is located)
+    current_dir = os.path.dirname(os.path.abspath(__file__))  
+    root_dir = os.path.dirname(current_dir)  
+    
+    # Create final_outputs directory in root if it doesn't exist
+    output_dir = os.path.join(root_dir, "final_outputs")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
     # Read the subjects CSV file
     subjects_df = pd.read_csv(args.subjects_csv)
     subjects_df.columns = subjects_df.columns.str.strip()
     
     for index, row in subjects_df.iterrows():
         subject_name = row['Subject Name']
+        
+        # Clean and normalize the file path
         input_file = row['File Path']
+        input_file = input_file.strip().strip('"').strip("'")  # Remove quotes and whitespace
+        input_file = os.path.normpath(input_file)    # Normalize path separators
+        input_file = os.path.abspath(input_file)     # Convert to absolute path if relative
         
         print(f"\nProcessing subject: {subject_name}")
-        # print(f"Input file path: {input_file}")
+        print(f"Using path: {input_file}")
         
-        # # Generate output filenames based on subject name in current directory
-        # subject_generated = f"{subject_name}_generated.csv"
-        final_output = f"final_{subject_name}.csv"
+        # Save output to root/final_outputs folder
+        final_output = os.path.join(output_dir, f"final_{subject_name}.csv")
         
-        # # Generate subject file
-        # new_subject_file = create_new_subject_file(input_file, subject_generated)
-        
-        print(f"Completed processing for {subject_name}\n")
+        # Process the subject's data
         processed_df = process_subjects_to_csv(input_file, final_output)
-        print(f"Completed processing for {subject_name}\n")
-
-        # # Process subject data and create final output
-        # temp = process_subjects_to_csv(new_subject_file, final_output)
-        # print(temp)
         
-        
+        if processed_df is not None:
+            print(f"Successfully processed {subject_name}")
+        else:
+            print(f"Failed to process {subject_name}")
 
 if __name__ == "__main__":
     main()
