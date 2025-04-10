@@ -1,5 +1,5 @@
-setwd("/Users/christine/NTR/Toolkit")
-load("/Users/christine/NTR/Toolkit/Toolkit_v2.0.RData")
+setwd("/Users/ramyanataraj/Documents/Research/toolkit-2.0-main")
+load("/Users/ramyanataraj/Documents/Research/toolkit-2.0-main/Toolkit_v2.0.RData")
 pronunciations <- read.csv("pronunciations.csv")
 
 levels <- c("PG", "OR", "ONC", "OC")
