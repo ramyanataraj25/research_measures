@@ -142,7 +142,7 @@ def main():
         print(f"Completed processing for {subject_name}\n")
         # Process subject data and create final output
         temp = process_subjects_to_csv(new_subject_file, final_output)
-        print(new_subject_file)
+        print(f"new file: {temp}")
         
         
 
