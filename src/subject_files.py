@@ -25,7 +25,7 @@ def process_subjects_to_csv(input_file, output_csv):
         # Create pronunciations.csv with pseudowords, drop duplicates if any
         pronunciations_df = pd.DataFrame({
             'X0': valid_rows['Pseudoword'],
-            'toolkit_pron': valid_rows['Pseudoword']
+            'toolkit_pron': valid_rows['Concatenate']
         }).drop_duplicates()
         pronunciations_df.to_csv('pronunciations.csv', index=False)
         
@@ -49,9 +49,9 @@ def process_subjects_to_csv(input_file, output_csv):
         columns_order = [
             'Paradigm order',
             'Pseudoword',
-            'Concatenate'
+            'Concatenate' 
         ]
-        measure_columns = [col for col in measures_df.columns if col != 'spelling']
+        measure_columns = [col for col in measures_df.columns if col not in ['spelling', 'onset', 'rime', 'grapheme']]
         columns_order.extend(measure_columns)
         
         # Reorder columns and save
