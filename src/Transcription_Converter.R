@@ -1,9 +1,9 @@
 # take file created from previous file (so subject_file) and apply conversion 
 # code to convert IPA to toolkit conventions (from Caleb)
 
-library(openxlsx)
-library(tidyverse)
-
+# Remove these lines since we don't need them
+# library(openxlsx)
+# library(tidyverse)
 
 inhousechars <- c("5", "O", "8", "o", "2", "Er", "1r", "Ur", "C", "T", "D", "G", "i", "3r", "a", "c", "u", "U", "1", "@", "E", "e", "^", "b", "d", "f", "g", "h", "j", "k", "l", "m", "n", "N", "p", "r", "s", "S", "t", "v", "w", "z", "Z")
 ipachars <- c("aɪ", "aʊ", "eɪ", "oʊ", "ɔɪ", "ɛɹ", "ɪɹ", "ʊɹ", "tʃ", "θ", "ð", "dʒ", "i", "ɚ", "ɑ", "ɔ", "u", "ʊ", "ɪ", "æ", "ɛ", "ə", "ʌ", "b", "d", "f", "g", "h", "j", "k", "l", "m", "n", "ŋ", "p", "ɹ", "s", "ʃ", "t", "v", "w", "z", "ʒ")
