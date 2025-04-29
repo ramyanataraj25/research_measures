@@ -55,7 +55,10 @@ def process_subjects_to_csv(input_file, output_csv):
             'Paradigm order',
             'Pseudoword',
             'Concatenate',
-            'Syllables' 
+            'PG',
+            'ONC',
+            'OC',
+            'OR' 
         ]
         measure_columns = [col for col in measures_df.columns if col not in ['spelling', 'onset', 'rime', 'grapheme']]
         columns_order.extend(measure_columns)

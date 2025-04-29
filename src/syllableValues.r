@@ -1,16 +1,26 @@
+cat("Starting syllableValues.r...\n")
+flush.console()
+
 setwd("/Users/ramyanataraj/Documents/Research/toolkit-2.0-main")
 load("/Users/ramyanataraj/Documents/Research/toolkit-2.0-main/Toolkit_v2.0.RData")
 source("/Users/ramyanataraj/Documents/Research/research_measures/src/Transcription_Converter.R")
+source("/Users/ramyanataraj/Documents/Research/toolkit-2.0-main/processing/PROCESSING_SCRIPTS.R")
+
+cat("Processing...\n")
+flush.console()
+
+pseudowords_measures <- read.csv("pseudoword_measures.csv")
 
 # Read and convert pronunciations
-pronunciations <- read.csv("pronunciations.csv")
-spellings <- wordlist_v2_0$spelling
-pronunciations <- wordlist_v2_0$pronunciation
-freq_weights <- wordlist_v2_0$freq
+pronunciations <- pseudowords_measures$pronunciation
+spellings <- pseudowords_measures$spelling
 
 mapped_words_output_name <- "all_words"
 made_tables_output_name <- "all_tables"
 mapped_values_output_name <- "scored_words"
+
+cat("vars made...\n")
+flush.console()
 
 grain_sizes <- list(
     "PG" = "_PG",
@@ -24,6 +34,9 @@ weight_options <- list(
     "freq" = "_freq", 
     "freq_noposition" = "_freq_noposition"
 )
+
+cat("function running...\n")
+flush.console()
 
 measures <- c("PG", "GP", "PG_freq", "G_freq", "P_freq")
 statistics <- c("mean", "median", "max", "min", "sd")
@@ -49,18 +62,23 @@ batch_map_words <- function(spellings, pronunciations, grain_sizes, output_name)
     return(dataset_names)
 }
 
-generated_datasets <- batch_map_words(
-  spellings = wordlist_v2_0$spelling,
-  pronunciations = wordlist_v2_0$pronunciation,
-  grain_sizes = grain_sizes,
-  output_name = "mapped"
-)
+cat("dataset...\n")
+flush.console()
+
+generated_datasets <- batch_map_words(spellings, pronunciations, 
+    grain_sizes, "map")
 
 # Pull one mapped dataset back into the wordlist
-wordlist_v2_0$PG <- get("mapped_PG")
-wordlist_v2_0$ONC <- get("mapped_ONC")
-wordlist_v2_0$OC <- get("mapped_OC")
-wordlist_v2_0$OR <- get("mapped_OR")
+wordlist_v2_0$PG <- get(generated_datasets[["map_PG"]])
+wordlist_v2_0$ONC <- get(generated_datasets[["map_ONC"]])
+wordlist_v2_0$OC <- get(generated_datasets[["map_OC"]])
+wordlist_v2_0$OR <- get(generated_datasets[["map_OR"]])
+
+cat("csv creating...\n")
+flush.console()
 
 # Write to CSV
 write.csv(wordlist_v2_0, "pseudoword_measures.csv", row.names = FALSE)
+
+cat(wordlist_v2_0.head())
+flush.console()
