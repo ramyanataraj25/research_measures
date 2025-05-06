@@ -12,47 +12,65 @@ def process_subjects_to_csv(input_file, output_csv):
         df = pd.read_csv(input_file)
         df.columns = df.columns.str.strip()
         
-        # Clean the Concatenate column using the same logic as edit_pronunciations
+        # Clean the Concatenate column 
         df['Concatenate'] = df['Concatenate'].apply(
             lambda x: ''.join(word.replace("ɚɹ","ɚ") for word in str(x).split()) 
             if not pd.isna(x) and x != 'noresp' 
             else x
         )
         
-        # Get all valid rows (where Concatenate isn't NA or 'noresp')
-        valid_rows = df[~pd.isna(df['Concatenate']) & (df['Concatenate'] != 'noresp')]
+        df = df.rename(columns={'Concatenate': 'participant_pronunciation'})
+        
+        # Get all valid rows (where participant_pronunciation isn't NA or 'noresp')
+        valid_rows = df[~pd.isna(df['participant_pronunciation']) & (df['participant_pronunciation'] != 'noresp')]
         
         # Create pronunciations.csv with pseudowords, drop duplicates if any
         pronunciations_df = pd.DataFrame({
             'X0': valid_rows['Pseudoword'],
-            'toolkit_pron': valid_rows['Concatenate']
+            'toolkit_pron': valid_rows['participant_pronunciation']
         }).drop_duplicates()
         pronunciations_df.to_csv('pronunciations.csv', index=False)
         
         # Run R script once for all pseudowords
-        #*****Change Rscript path if needed****
         subprocess.run(['Rscript', '/Users/christine/research_measures/src/get_pseudoword_measures.R'], check=True)
         
-        # Read all measures 
+        # Read result files
         measures_df = pd.read_csv('pseudoword_measures.csv')
         
-        # Merge measures back into original dataframe
+        # Debug output
+        print(f"Columns in pseudoword_measures.csv: {measures_df.columns.tolist()}")
+        phoneme_cols = [col for col in measures_df.columns if '_phonemes' in col]
+        grapheme_cols = [col for col in measures_df.columns if '_graphemes' in col]
+        print(f"Phoneme columns: {phoneme_cols}")
+        print(f"Grapheme columns: {grapheme_cols}")
+        
+        # Merge everything together
         result_df = pd.merge(
             df,
             measures_df,
             left_on='Pseudoword',
             right_on='spelling',
             how='left'
-        ).drop_duplicates(subset=['Paradigm order', 'Pseudoword', 'Concatenate']) 
+        ).drop_duplicates(subset=['Paradigm order', 'Pseudoword', 'participant_pronunciation'])
         
         # Reorder columns
         columns_order = [
             'Paradigm order',
             'Pseudoword',
-            'Concatenate' 
+            'participant_pronunciation',
         ]
-        measure_columns = [col for col in measures_df.columns if col not in ['spelling', 'onset', 'rime', 'grapheme']]
+        
+        # Add phoneme and grapheme columns
+        phoneme_grapheme_cols = phoneme_cols + grapheme_cols
+        columns_order.extend(phoneme_grapheme_cols)
+        
+        # Add the measure columns
+        measure_columns = [col for col in measures_df.columns 
+                         if col not in ['spelling', 'pronunciation'] + phoneme_grapheme_cols]
         columns_order.extend(measure_columns)
+        
+        # Make sure all required columns exist
+        columns_order = [col for col in columns_order if col in result_df.columns]
         
         # Reorder columns and save
         result_df = result_df[columns_order]
@@ -89,14 +107,14 @@ def main():
         
         # Clean and normalize the file path
         input_file = row['File Path']
-        input_file = input_file.strip().strip('"').strip("'")  # Remove quotes and whitespace
-        input_file = os.path.normpath(input_file)    # Normalize path separators
-        input_file = os.path.abspath(input_file)     # Convert to absolute path if relative
+        input_file = input_file.strip().strip('"').strip("'")  
+        input_file = os.path.normpath(input_file)   
+        input_file = os.path.abspath(input_file)     
         
         print(f"\nProcessing subject: {subject_name}")
         print(f"Using path: {input_file}")
         
-        # Save output to root/final_outputs folder
+        # Save output to final_outputs folder
         final_output = os.path.join(output_dir, f"final_{subject_name}.csv")
         
         # Process the subject's data
