@@ -35,7 +35,7 @@ def process_subjects_to_csv(input_file, output_csv):
         subprocess.run(['Rscript', '/Users/christine/research_measures/src/get_pseudoword_measures.R'], check=True)
         
         # Read result files
-        measures_df = pd.read_csv('pseudoword_measures.csv')
+        measures_df = pd.read_csv('src/pseudoword_measures.csv')
         
         # Debug output
         print(f"Columns in pseudoword_measures.csv: {measures_df.columns.tolist()}")
@@ -103,7 +103,7 @@ def main():
     subjects_df.columns = subjects_df.columns.str.strip()
     
     for index, row in subjects_df.iterrows():
-        subject_name = row['Subject Name']
+        subject = row['Subject']
         
         # Clean and normalize the file path
         input_file = row['File Path']
@@ -111,19 +111,19 @@ def main():
         input_file = os.path.normpath(input_file)   
         input_file = os.path.abspath(input_file)     
         
-        print(f"\nProcessing subject: {subject_name}")
+        print(f"\nProcessing subject: {subject}")
         print(f"Using path: {input_file}")
         
         # Save output to final_outputs folder
-        final_output = os.path.join(output_dir, f"final_{subject_name}.csv")
+        final_output = os.path.join(output_dir, f"{subject}-toolkit-reading_measures.csv")
         
         # Process the subject's data
         processed_df = process_subjects_to_csv(input_file, final_output)
         
         if processed_df is not None:
-            print(f"Successfully processed {subject_name}")
+            print(f"Successfully processed {subject}")
         else:
-            print(f"Failed to process {subject_name}")
+            print(f"Failed to process {subject}")
 
 if __name__ == "__main__":
     main()
