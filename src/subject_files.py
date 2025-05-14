@@ -6,30 +6,61 @@ import os
 
 
 #args: path to subject file, path to output csv file
-def process_subjects_to_csv(input_file, output_csv):
+def process_subjects_to_csv(input_file, output_dir):
     try:
         # Read input CSV file
         df = pd.read_csv(input_file)
         df.columns = df.columns.str.strip()
         
-        # Clean the Concatenate column 
+        # Clean the Concatenate column using the same logic as edit_pronunciations
         df['Concatenate'] = df['Concatenate'].apply(
             lambda x: ''.join(word.replace("ɚɹ","ɚ") for word in str(x).split()) 
             if not pd.isna(x) and x != 'noresp' 
             else x
         )
         
+        # Rename the Concatenate column to participant_pronunciation
         df = df.rename(columns={'Concatenate': 'participant_pronunciation'})
         
         # Get all valid rows (where participant_pronunciation isn't NA or 'noresp')
         valid_rows = df[~pd.isna(df['participant_pronunciation']) & (df['participant_pronunciation'] != 'noresp')]
         
-        # Create pronunciations.csv with pseudowords, drop duplicates if any
+        # Get the most common pronunciation for each pseudoword
+        pseudoword_pronunciations = {}
+        for pseudoword in valid_rows['Pseudoword'].unique():
+            # Get all valid pronunciations for this pseudoword
+            pronunciations = valid_rows[valid_rows['Pseudoword'] == pseudoword]['participant_pronunciation'].tolist()
+            
+            # Count occurrences of each pronunciation
+            pronunciation_counts = {}
+            for pron in pronunciations:
+                if pron in pronunciation_counts:
+                    pronunciation_counts[pron] += 1
+                else:
+                    pronunciation_counts[pron] = 1
+            
+            # Find the most common pronunciation
+            most_common_pron = max(pronunciation_counts, key=pronunciation_counts.get)
+            
+            # Check if there's a tie (all pronunciations occur the same number of times)
+            max_count = pronunciation_counts[most_common_pron]
+            tie = all(count == max_count for count in pronunciation_counts.values())
+            
+            if tie and len(pronunciation_counts) > 1:
+                # If there's a tie, use the first pronunciation that appears in the data
+                most_common_pron = pronunciations[0]
+                print(f"Tie for pseudoword '{pseudoword}' - using first pronunciation: '{most_common_pron}'")
+            else:
+                print(f"For pseudoword '{pseudoword}', using most common pronunciation: '{most_common_pron}' (occurs {max_count}/{len(pronunciations)} times)")
+            
+            pseudoword_pronunciations[pseudoword] = most_common_pron
+        
+        # Create pronunciations.csv with pseudowords and their most common pronunciations
         pronunciations_df = pd.DataFrame({
-            'X0': valid_rows['Pseudoword'],
-            'toolkit_pron': valid_rows['participant_pronunciation']
-        }).drop_duplicates()
-        pronunciations_df.to_csv('pronunciations.csv', index=False)
+            'X0': list(pseudoword_pronunciations.keys()),
+            'toolkit_pron': list(pseudoword_pronunciations.values())
+        })
+        pronunciations_df.to_csv('src/pronunciations.csv', index=False)
         
         # Run R script once for all pseudowords
         subprocess.run(['Rscript', '/Users/christine/research_measures/src/get_pseudoword_measures.R'], check=True)
@@ -38,20 +69,25 @@ def process_subjects_to_csv(input_file, output_csv):
         measures_df = pd.read_csv('src/pseudoword_measures.csv')
         
         # Debug output
-        print(f"Columns in pseudoword_measures.csv: {measures_df.columns.tolist()}")
         phoneme_cols = [col for col in measures_df.columns if '_phonemes' in col]
         grapheme_cols = [col for col in measures_df.columns if '_graphemes' in col]
-        print(f"Phoneme columns: {phoneme_cols}")
-        print(f"Grapheme columns: {grapheme_cols}")
+
         
-        # Merge everything together
+        # Create a subset of the original dataframe with unique pseudowords
+        # This preserves the order and other columns from the original data
+        unique_pseudowords = df.drop_duplicates(subset=['Paradigm order', 'Pseudoword'])
+        
+        # Merge with the measures dataframe
         result_df = pd.merge(
-            df,
+            unique_pseudowords,
             measures_df,
             left_on='Pseudoword',
             right_on='spelling',
             how='left'
-        ).drop_duplicates(subset=['Paradigm order', 'Pseudoword', 'participant_pronunciation'])
+        )
+        
+        # Add the most common pronunciation for each pseudoword
+        result_df['participant_pronunciation'] = result_df['Pseudoword'].map(pseudoword_pronunciations)
         
         # Reorder columns
         columns_order = [
@@ -72,15 +108,29 @@ def process_subjects_to_csv(input_file, output_csv):
         # Make sure all required columns exist
         columns_order = [col for col in columns_order if col in result_df.columns]
         
-        # Reorder columns and save
+        # Reorder columns
         result_df = result_df[columns_order]
-        result_df.to_csv(output_csv, index=False)
-        print(f"Successfully created {output_csv}")
-        return result_df
+        
+        # Determine the next available NTR number
+        subject_number = 1
+        while True:
+            # Check if file with this number already exists
+            output_filename = f"ntr{subject_number:04d}-toolkit-reading_measures.csv"
+            output_path = os.path.join(output_dir, output_filename)
+            
+            if not os.path.exists(output_path):
+                break
+            
+            subject_number += 1
+        
+        # Save with the unique NTR number
+        result_df.to_csv(output_path, index=False)
+        print(f"Successfully created {output_path}")
+        return result_df, subject_number
         
     except Exception as e:
         print(f"Error in process_subjects_to_csv: {e}")
-        return None
+        return None, None
 
 def main():
     parser = argparse.ArgumentParser(
@@ -112,7 +162,6 @@ def main():
         input_file = os.path.abspath(input_file)     
         
         print(f"\nProcessing subject: {subject}")
-        print(f"Using path: {input_file}")
         
         # Save output to final_outputs folder
         final_output = os.path.join(output_dir, f"{subject}-toolkit-reading_measures.csv")
