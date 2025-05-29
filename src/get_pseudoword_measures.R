@@ -1,6 +1,8 @@
-setwd("/Users/christine/NTR/Toolkit")
-load("/Users/christine/NTR/Toolkit/Toolkit_v2.0.RData")
-source("/Users/christine/research_measures/src/Transcription_Converter.R")
+setwd("/Users/ramyanataraj/Documents/Research/toolkit-2.0-main")
+load("/Users/ramyanataraj/Documents/Research/toolkit-2.0-main
+/Toolkit_v2.0.RData")
+source("/Users/ramyanataraj/Documents/Research/research_measures
+/src/Transcription_Converter.R")
 pronunciations <- read.csv("pronunciations.csv")
 
 # Convert IPA pronunciations to toolkit format
@@ -120,7 +122,8 @@ for (i in 1:nrow(pronunciations)) {
 }
 
 # Write results to CSV
-write.csv(results_df, "/Users/christine/research_measures/src/pseudoword_measures.csv", row.names = FALSE)
+write.csv(results_df, "/Users/ramyanataraj/Documents/Research/research_measures
+/src/pseudoword_measures.csv", row.names = FALSE)
 
 # Print debug info
 cat("\nColumns in pseudoword_measures.csv:\n")

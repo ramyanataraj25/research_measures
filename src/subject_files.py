@@ -32,7 +32,7 @@ def process_subjects_to_csv(input_file, output_csv):
         pronunciations_df.to_csv('pronunciations.csv', index=False)
         
         # Run R script once for all pseudowords
-        subprocess.run(['Rscript', '/Users/christine/research_measures/src/get_pseudoword_measures.R'], check=True)
+        subprocess.run(['Rscript', '/Users/ramyanataraj/Documents/Research/research_measures/src/get_pseudoword_measures.R'], check=True)
         
         # Read result files
         measures_df = pd.read_csv('pseudoword_measures.csv')
