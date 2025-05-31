@@ -73,13 +73,9 @@ def process_subjects_to_csv(input_file, output_dir, subject_prefix):
         grapheme_cols = [col for col in measures_df.columns if '_graphemes' in col]
 
         
-        # Create a subset of the original dataframe with unique pseudowords
-        # This preserves the order and other columns from the original data
-        unique_pseudowords = df.drop_duplicates(subset=['Paradigm order', 'Pseudoword'])
-        
-        # Merge with the measures dataframe
+        # Merge everything together
         result_df = pd.merge(
-            unique_pseudowords,
+            df,
             measures_df,
             left_on='Pseudoword',
             right_on='spelling',
@@ -88,6 +84,9 @@ def process_subjects_to_csv(input_file, output_dir, subject_prefix):
         
         # Add the most common pronunciation for each pseudoword
         result_df['participant_pronunciation'] = result_df['Pseudoword'].map(pseudoword_pronunciations)
+        
+        # Drop duplicates based on Paradigm order and Pseudoword
+        result_df = result_df.drop_duplicates(subset=['Paradigm order', 'Pseudoword'])
         
         # Reorder columns
         columns_order = [
