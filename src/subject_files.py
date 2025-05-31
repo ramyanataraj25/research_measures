@@ -6,7 +6,7 @@ import os
 
 
 #args: path to subject file, path to output csv file
-def process_subjects_to_csv(input_file, output_dir):
+def process_subjects_to_csv(input_file, output_dir, subject_prefix):
     try:
         # Read input CSV file
         df = pd.read_csv(input_file)
@@ -35,7 +35,7 @@ def process_subjects_to_csv(input_file, output_dir):
             pronunciation_counts = {}
             for pron in pronunciations:
                 if pron in pronunciation_counts:
-                    pronunciation_counts[pron] += 1
+                    pronunciation_counts[pron] = pronunciation_counts.get(pron, 0) + 1
                 else:
                     pronunciation_counts[pron] = 1
             
@@ -111,26 +111,18 @@ def process_subjects_to_csv(input_file, output_dir):
         # Reorder columns
         result_df = result_df[columns_order]
         
-        # Determine the next available NTR number
-        subject_number = 1
-        while True:
-            # Check if file with this number already exists
-            output_filename = f"ntr{subject_number:04d}-toolkit-reading_measures.csv"
-            output_path = os.path.join(output_dir, output_filename)
-            
-            if not os.path.exists(output_path):
-                break
-            
-            subject_number += 1
+        # Use the subject_prefix directly for the output filename
+        output_filename = f"{subject_prefix}-toolkit-reading_measures.csv"
+        output_path = os.path.join(output_dir, output_filename)
         
-        # Save with the unique NTR number
+        # Save the result
         result_df.to_csv(output_path, index=False)
         print(f"Successfully created {output_path}")
-        return result_df, subject_number
+        return result_df
         
     except Exception as e:
         print(f"Error in process_subjects_to_csv: {e}")
-        return None, None
+        return None
 
 def main():
     parser = argparse.ArgumentParser(
@@ -153,7 +145,7 @@ def main():
     subjects_df.columns = subjects_df.columns.str.strip()
     
     for index, row in subjects_df.iterrows():
-        subject = row['Subject']
+        subject = row['Subject']  # This will be 'sub-ntr0019'
         
         # Clean and normalize the file path
         input_file = row['File Path']
@@ -162,12 +154,10 @@ def main():
         input_file = os.path.abspath(input_file)     
         
         print(f"\nProcessing subject: {subject}")
+        print(f"Using path: {input_file}")
         
-        # Save output to final_outputs folder
-        final_output = os.path.join(output_dir, f"{subject}-toolkit-reading_measures.csv")
-        
-        # Process the subject's data
-        processed_df = process_subjects_to_csv(input_file, final_output)
+        # Pass the subject as the prefix for the output filename
+        processed_df = process_subjects_to_csv(input_file, output_dir, subject)
         
         if processed_df is not None:
             print(f"Successfully processed {subject}")
